@@ -31,7 +31,7 @@
    {
      background: #f79d00;  /* fallback for old browsers */
 background: -webkit-linear-gradient(to right, #64f38c, #f79d00);  /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to right, #64f38c, #f79d00); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+background: linear-gradient(to right, #64f38c, #00ecf7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 
 
 
@@ -220,7 +220,7 @@ background: linear-gradient(to right, #64f38c, #f79d00); /* W3C, IE 10+/ Edge, F
            <td>
                
                <b>Label</b><br/>
-               <input type="text" id="ruleLabel" placeholder="Input Name" class="clearthis"/><br/>
+               <input type="text" id="ruleLabel" placeholder="Input Name" class="clearthis" onblur="populateApi.call(this)"/><br/>
                
                <b>Name</b><br/>
                <input type="text" id="ruleName" placeholder="Input Unique API Name" class="clearthis"/><br/>
@@ -293,6 +293,44 @@ background: linear-gradient(to right, #64f38c, #f79d00); /* W3C, IE 10+/ Edge, F
            <input type="text" id="SWName" placeholder="Name" class="clearthis"/>   
            <input type="checkbox" id="sharewithClone" class="cloneThis_share clearthis"/> Clone
         </p>  
+        <p class="sc1 acconly" style="display:none;">
+           <b>Level of access</b><br/>
+           <table class="acconly">
+           <tr>
+           <td>
+           Default Account, Contract and Asset Access &nbsp;&nbsp;
+           </td>
+           <td>
+           <select id="acclevelaccess">
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/> 
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Opportunity Access &nbsp;&nbsp;</td>
+           <td>
+           <select id="opplevelaccess">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp;  <br/>
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Case Access &nbsp;&nbsp;</td> 
+           <td>
+           <select id="caselevelaccess">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/></td> 
+            
+           </tr> 
+           </table>
+        </p>
         <hr/> 
         
         <span class="clickli sc1" id="addMultiple" onclick="change2Screen2();"> <u>Add to multiple object >> </u></span><span style="margin-left:10%;color: #29a329;" class="addedNotification"></span><br/><br/>
@@ -366,6 +404,44 @@ background: linear-gradient(to right, #64f38c, #f79d00); /* W3C, IE 10+/ Edge, F
            </select>&nbsp;&nbsp;   
            <input type="text" id="SWName_edit" placeholder="Name" disabled="disabled"/>
         </p> 
+        <p class="acconly_edit" style="display:none;">
+           <b>Level of access</b><br/>
+           <table class="acconly_edit">
+           <tr>
+           <td>
+           Default Account, Contract and Asset Access &nbsp;&nbsp;
+           </td>
+           <td>
+           <select id="acclevelaccess_edit">
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/> 
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Opportunity Access &nbsp;&nbsp;</td>
+           <td>
+           <select id="opplevelaccess_edit">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp;  <br/>
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Case Access &nbsp;&nbsp;</td> 
+           <td>
+           <select id="caselevelaccess_edit">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/></td> 
+            
+           </tr> 
+           </table>
+        </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" onclick="saveEdited();">Save</button>
@@ -488,7 +564,9 @@ background: linear-gradient(to right, #64f38c, #f79d00); /* W3C, IE 10+/ Edge, F
     var deploycomponent_type = [];
     var currentObjDescribe ;
     var currentObjFieldTypeMap = [];
-    
+    var case_level='';
+    var opp_level='';
+    var contact_level='';
     
     //pre-Loader init//////////////////
     $("#preLoaderModal").modal({backdrop:'static',keybord:'false'});
@@ -638,11 +716,25 @@ function populateRules(data)
      var CriteriaLogic = criteriarules[i].getElementsByTagName('booleanFilter').length>0 ? criteriarules[i].getElementsByTagName('booleanFilter')[0].innerHTML : 'AND applies for all';
      var SharedTo = criteriarules[i].getElementsByTagName('sharedTo');
      var label = criteriarules[i].getElementsByTagName('fullName').length>0 ? criteriarules[i].getElementsByTagName('label')[0].innerHTML : '';
+     var specialEdit = '';
      
      var SharedtoName = '';
      var SharedtoType = '';
      var CritariaString = '';
      
+     if($('.objname').text() == 'Account')
+     {
+       var oppacc = criteriarules[i].getElementsByTagName('accountSettings').length>0 ? criteriarules[i].getElementsByTagName('accountSettings')[0].getElementsByTagName('opportunityAccessLevel')[0].innerHTML : '';
+       var caseacc = criteriarules[i].getElementsByTagName('accountSettings').length>0 ? criteriarules[i].getElementsByTagName('accountSettings')[0].getElementsByTagName('caseAccessLevel')[0].innerHTML : '';
+       
+       var tempAccLevel = "<ul><li>Account, Contract and Asset  :  "+AccLevel+"</li>";
+       tempAccLevel += "<li>Opportunity  :  "+oppacc+"</li>";
+       tempAccLevel += "<li>Case  :  "+caseacc+"</li></ul>";
+       
+       specialEdit = caseacc+"-"+AccLevel+"-"+oppacc;
+       AccLevel = tempAccLevel;
+       
+     }
      
      if(SharedTo.length>0)
      {
@@ -683,13 +775,27 @@ function populateRules(data)
         CritariaString += '<li>'+ temp+'</li>';
      }
      
+     
      //populate Table row
-        var temprow = '<tr><td>'+APIName+'</td><td>'+AccLevel+'</td><td>'+SharedtoType+'</td><td>'+SharedtoName
+     var temprow = '';
+     
+     if($('.objname').text() == 'Account')
+     {
+            temprow = '<tr><td>'+APIName+'</td><td>'+AccLevel+'</td><td>'+SharedtoType+'</td><td>'+SharedtoName
+        +'</td><td style="white-space: pre-wrap;"><ol>'+CritariaString+'</ol></td><td>'+ CriteriaLogic 
+        +'</td><td><button type="button" class="btn btn-default" data-rulename="'+APIName+'" data-alev="'+specialEdit
+        +'"  data-shto="'+SharedtoType+'" data-shton="'+SharedtoName+'" data-crst="'+CritariaString+'" data-crlg="'+CriteriaLogic+'" data-lbl="'+label
+        +'" data-dismiss="modal" data-rtype="sharingCriteriaRules" onclick="editRule.call(this);" data-toggle="modal" data-target="#editModal">Edit</button></td></tr>';
+     }
+     else
+     {
+            temprow = '<tr><td>'+APIName+'</td><td>'+AccLevel+'</td><td>'+SharedtoType+'</td><td>'+SharedtoName
         +'</td><td style="white-space: pre-wrap;"><ol>'+CritariaString+'</ol></td><td>'+ CriteriaLogic 
         +'</td><td><button type="button" class="btn btn-default" data-rulename="'+APIName+'" data-alev="'+AccLevel
         +'"  data-shto="'+SharedtoType+'" data-shton="'+SharedtoName+'" data-crst="'+CritariaString+'" data-crlg="'+CriteriaLogic+'" data-lbl="'+label
         +'" data-dismiss="modal" data-rtype="sharingCriteriaRules" onclick="editRule.call(this);" data-toggle="modal" data-target="#editModal">Edit</button></td></tr>';
-        
+     }
+          
         
         
         
@@ -708,12 +814,26 @@ function populateRules(data)
      var SharedFrom = criteriarules[i].getElementsByTagName('sharedFrom');
      var SharedTo = criteriarules[i].getElementsByTagName('sharedTo');
      var label = criteriarules[i].getElementsByTagName('fullName').length>0 ? criteriarules[i].getElementsByTagName('label')[0].innerHTML : '';
+     var specialEdit = '';
      
      var SharedtoName = '';
      var SharedtoType = '';
      var SharedfromName = '';
      var SharedfromType = '';
      
+     if($('.objname').text() == 'Account')
+     {
+       var oppacc = criteriarules[i].getElementsByTagName('accountSettings').length>0 ? criteriarules[i].getElementsByTagName('accountSettings')[0].getElementsByTagName('opportunityAccessLevel')[0].innerHTML : '';
+       var caseacc = criteriarules[i].getElementsByTagName('accountSettings').length>0 ? criteriarules[i].getElementsByTagName('accountSettings')[0].getElementsByTagName('caseAccessLevel')[0].innerHTML : '';
+       
+       var tempAccLevel = "<ul><li>Account, Contract and Asset  :  "+AccLevel+"</li>";
+       tempAccLevel += "<li>Opportunity  :  "+oppacc+"</li>";
+       tempAccLevel += "<li>Case  :  "+caseacc+"</li></ul>";
+       
+       specialEdit = caseacc+"-"+AccLevel+"-"+oppacc;
+       AccLevel = tempAccLevel;
+       
+     }
      
      if(SharedTo.length>0)
      {
@@ -774,12 +894,23 @@ function populateRules(data)
      
      
      //populate Table row
-        var temprow = '<tr><td>'+APIName+'</td><td>'+AccLevel+'</td><td>'+SharedfromType+'</td><td>'+SharedfromName
-        +'</td><td>'+SharedtoType+'</td><td>'+ SharedtoName
-        +'</td><td><button type="button" class="btn btn-default" data-rulename="'+APIName+'" data-alev="'+AccLevel
-        +'"  data-shto="'+SharedtoType+'" data-shton="'+SharedtoName+'" data-shfrm="'+SharedfromType+'" data-shfrmn="'+SharedfromName+'" data-lbl="'+label
-        +'" data-dismiss="modal" data-rtype="sharingOwnerRules" onclick="editRule.call(this);" data-toggle="modal" data-target="#editModal">Edit</button></td></tr>';
-        
+        var temprow ='';
+        if($('.objname').text() == 'Account')
+        {
+            temprow = '<tr><td>'+APIName+'</td><td>'+AccLevel+'</td><td>'+SharedfromType+'</td><td>'+SharedfromName
+            +'</td><td>'+SharedtoType+'</td><td>'+ SharedtoName
+            +'</td><td><button type="button" class="btn btn-default" data-rulename="'+APIName+'" data-alev="'+specialEdit
+            +'"  data-shto="'+SharedtoType+'" data-shton="'+SharedtoName+'" data-shfrm="'+SharedfromType+'" data-shfrmn="'+SharedfromName+'" data-lbl="'+label
+            +'" data-dismiss="modal" data-rtype="sharingOwnerRules" onclick="editRule.call(this);" data-toggle="modal" data-target="#editModal">Edit</button></td></tr>';
+        }
+        else
+        {
+             temprow = '<tr><td>'+APIName+'</td><td>'+AccLevel+'</td><td>'+SharedfromType+'</td><td>'+SharedfromName
+            +'</td><td>'+SharedtoType+'</td><td>'+ SharedtoName
+            +'</td><td><button type="button" class="btn btn-default" data-rulename="'+APIName+'" data-alev="'+AccLevel
+            +'"  data-shto="'+SharedtoType+'" data-shton="'+SharedtoName+'" data-shfrm="'+SharedfromType+'" data-shfrmn="'+SharedfromName+'" data-lbl="'+label
+            +'" data-dismiss="modal" data-rtype="sharingOwnerRules" onclick="editRule.call(this);" data-toggle="modal" data-target="#editModal">Edit</button></td></tr>';
+        }       
         
         
         
@@ -862,6 +993,15 @@ function createRuleXML()
   var sharewithName = $('#SWName').val();
   var sharefromType = $('#shareFromType').val();
   var sharefromName = $('#SFName').val();
+  
+  if($('.objname').text() == 'Account')
+  {
+     contact_level = $("#acclevelaccess").val();
+     opp_level = $("#opplevelaccess").val();
+     case_level = $("#caselevelaccess").val();
+  }
+  
+  
     
   var cr_fields = [];
   var cr_ops = [];
@@ -1138,6 +1278,16 @@ function resetall()
   $("#CRRadio").prop("checked", true);
   $("#shareWithType").val('group');
   $("#shareFromType").val('group');
+  if($('.objname').text() == 'Account')
+    {
+      $(".acconly").show();
+      $("#acclevel").attr('disabled','true');
+    }
+  else
+    {
+      $(".acconly").hide();
+      $("#acclevel").removeAttr('disabled');
+    }
   $('#myModal').modal({backdrop: 'static', keyboard: false});
   resetFieldsEdit_new();
   populateObjfields('objField');
@@ -1363,12 +1513,26 @@ function resetFieldsEdit_new()
        
        //populating access picklist
        
-       if(accesslevel_edit == 'Read' ||accesslevel_edit == 'read')
-         $("#acclevel_edit").val("Read");
-       if(accesslevel_edit == 'Edit' ||accesslevel_edit == 'edit')
-         $("#acclevel_edit").val("Edit");  
+       if($('.objname').text() == 'Account')
+       {
+            var acclevelArr = accesslevel_edit.split('-');
+            $(".acconly_edit").show();
+            $("#acclevelaccess_edit").val(acclevelArr[1]);
+            $("#opplevelaccess_edit").val(acclevelArr[2]);
+            $("#caselevelaccess_edit").val(acclevelArr[0]);
+         
+       }
+       else
+       {
+           $(".acconly_edit").hide();
+           if(accesslevel_edit == 'Read' ||accesslevel_edit == 'read')
+             $("#acclevel_edit").val("Read");
+           if(accesslevel_edit == 'Edit' ||accesslevel_edit == 'edit')
+             $("#acclevel_edit").val("Edit");  
        
-       //populating field rows
+       }
+
+      //populating field rows
        
       if(rule_type_edit == 'sharingCriteriaRules')
       {
@@ -1523,6 +1687,7 @@ function resetFieldsEdit_new()
           //XMLDOC manupulation for display
           
           xmlDoc.getElementsByTagName("sharingCriteriaRules")[i].getElementsByTagName('label')[0].innerHTML = ruleLabel ;
+          
           xmlDoc.getElementsByTagName("sharingCriteriaRules")[i].getElementsByTagName('accessLevel')[0].innerHTML = accesslevel ;
           
           if(filterLogic.length>0 && xmlDoc.getElementsByTagName("sharingCriteriaRules")[i].getElementsByTagName('booleanFilter').length>0)
@@ -1663,13 +1828,13 @@ function resetFieldsEdit_new()
       
       if(type == 'sharingCriteriaRules')
       {
-          alert('sharingCriteriaRules');
+          //alert('sharingCriteriaRules');
           if(xmlDoc.getElementsByTagName("SharingRules").length > 0)
           {
-             alert('SharingRules > 0');
+             //alert('SharingRules > 0');
              if(xmlDoc.getElementsByTagName("SharingRules")[0].getElementsByTagName("sharingCriteriaRules") && xmlDoc.getElementsByTagName("SharingRules")[0].getElementsByTagName("sharingCriteriaRules").length>0)
               {
-                  alert('sharingCriteriaRules > 0');
+                  //alert('sharingCriteriaRules > 0');
                   var templength = xmlDoc.getElementsByTagName("SharingRules")[0].getElementsByTagName("sharingCriteriaRules").length;
                   for(var i=0;i<rules.length;i++)
                   {   
@@ -1680,7 +1845,7 @@ function resetFieldsEdit_new()
               }
               else  //if(!xmlDoc.getElementsByTagName("SharingRules")[0].getElementsByTagName("sharingCriteriaRules"))
               {
-                  alert('sharingCriteriaRules == 0');
+                  //alert('sharingCriteriaRules == 0');
                   for(var i=0;i<rules.length;i++)
                     xmlDoc.getElementsByTagName("SharingRules")[0].appendChild(rules[i]);
               }
@@ -1837,21 +2002,45 @@ function createRule(ruletype,rulename,ruleLabel,ruledesc,accesslevel,filterLogic
                 //Rule Creation Start
                   var ruleElement = doc.createElement(ruletype);
                   var fullname_e = doc.createElement('fullName');
-                     fullname_e.innerHTML=rulename;
+                     fullname_e.innerHTML=rulename.replace(/[^\w\s]/gi,'').replace(' ','_');
                      ruleElement.appendChild(fullname_e);
                      includecomponent(rulename,'sharingCriteriaRules');
                      
                   var label_e = doc.createElement('label');
-                     label_e.innerHTML = ruleLabel;
+                     label_e.innerHTML = ruleLabel.replace(/[^\w\s]/gi,'');
                      ruleElement.appendChild(label_e);
                      
-                  var accessLevel_e = doc.createElement('accessLevel');
-                     accessLevel_e.innerHTML = accesslevel;
-                     ruleElement.appendChild(accessLevel_e);
-                  
                   var ruledesc_e = doc.createElement('description');
                      ruledesc_e.innerHTML = ruledesc;
                      ruleElement.appendChild(ruledesc_e);
+                  
+                  if($('.objname').text() == 'Account')
+                  {
+                     var accessLevel_e = doc.createElement('accessLevel');
+                         accessLevel_e.innerHTML = contact_level;
+                         ruleElement.appendChild(accessLevel_e);
+                     
+                     var accsettings_e = doc.createElement('accountSettings');
+                     var casesettings_e = doc.createElement('caseAccessLevel');
+                         casesettings_e.innerHTML=case_level;
+                     var contactsettings_e = doc.createElement('contactAccessLevel');
+                         contactsettings_e.innerHTML=contact_level;
+                     var oppsettings_e = doc.createElement('opportunityAccessLevel');
+                         oppsettings_e.innerHTML=opp_level;
+                        
+                        accsettings_e.appendChild(casesettings_e);
+                        accsettings_e.appendChild(contactsettings_e);
+                        accsettings_e.appendChild(oppsettings_e);
+                        
+                        ruleElement.appendChild(accsettings_e);
+                     
+                  }
+                  else
+                  {
+                     var accessLevel_e = doc.createElement('accessLevel');
+                         accessLevel_e.innerHTML = accesslevel;
+                         ruleElement.appendChild(accessLevel_e);
+                  }
                   
                   if(filterLogic.length>0)
                   {
@@ -1959,22 +2148,46 @@ function createRule(ruletype,rulename,ruleLabel,ruledesc,accesslevel,filterLogic
             //Rule Creation Start
                   var ruleElement = doc.createElement(ruletype);
                   var fullname_e = doc.createElement('fullName');
-                     fullname_e.innerHTML=rulename;
+                     fullname_e.innerHTML=rulename.replace(/[^\w\s]/gi, '').replace(' ','_');
                      ruleElement.appendChild(fullname_e);
                      includecomponent(rulename,'sharingOwnerRules');
                      
                      
                   var label_e = doc.createElement('label');
-                     label_e.innerHTML = ruleLabel;
+                     label_e.innerHTML = ruleLabel.replace(/[^\w\s]/gi, '');
                      ruleElement.appendChild(label_e);
                      
-                  var accessLevel_e = doc.createElement('accessLevel');
-                     accessLevel_e.innerHTML = accesslevel;
-                     ruleElement.appendChild(accessLevel_e);
-                  
                   var ruledesc_e = doc.createElement('description');
                      ruledesc_e.innerHTML = ruledesc;
                      ruleElement.appendChild(ruledesc_e);
+                  
+                  if($('.objname').text() == 'Account')
+                  {
+                     var accessLevel_e = doc.createElement('accessLevel');
+                         accessLevel_e.innerHTML = contact_level;
+                         ruleElement.appendChild(accessLevel_e);
+                     
+                     var accsettings_e = doc.createElement('accountSettings');
+                     var casesettings_e = doc.createElement('caseAccessLevel');
+                         casesettings_e.innerHTML=case_level;
+                     var contactsettings_e = doc.createElement('contactAccessLevel');
+                         contactsettings_e.innerHTML=contact_level;
+                     var oppsettings_e = doc.createElement('opportunityAccessLevel');
+                         oppsettings_e.innerHTML=opp_level;
+                        
+                        accsettings_e.appendChild(casesettings_e);
+                        accsettings_e.appendChild(contactsettings_e);
+                        accsettings_e.appendChild(oppsettings_e);
+                        
+                        ruleElement.appendChild(accsettings_e);
+                     
+                  }
+                  else
+                  {
+                     var accessLevel_e = doc.createElement('accessLevel');
+                         accessLevel_e.innerHTML = accesslevel;
+                         ruleElement.appendChild(accessLevel_e);
+                  }
    
                   var sharedTo_e = doc.createElement('sharedTo');
                   var sharetype_e;
@@ -2045,6 +2258,12 @@ function createRule(ruletype,rulename,ruleLabel,ruledesc,accesslevel,filterLogic
      }
    return null;
 }
+
+function populateApi()
+{
+   $("#ruleName").val($(this).val().replace(/[^\w\s]/gi,'_').replace(' ','_'));
+}
 </script>
+
 <script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/shareChareJS.js')}"></script>
 </apex:page>
