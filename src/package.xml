@@ -5,6 +5,10 @@
         <name>ApexPage</name>
     </types>
     <types>
+        <members>Share_Bot</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
         <members>ShareBot</members>
         <name>StaticResource</name>
     </types>
