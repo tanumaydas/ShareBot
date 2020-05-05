@@ -16,7 +16,7 @@
   <body>  
   <div class=".mx-auto px-2">
        <div class="row pagebg">
-         <div class="col-md-12" style=""><font style="font-size:32px;"><image src="{!URLFOR($Resource.ShareBot,'resources/shareCareIcon.png')}" width="50" height="50"/><b>share<font color="white">B</font>ot.</b></font><span style="font-size: 20px;float:right"><font style="color: #eae6ae;" class="likebutton" onclick="backtotabs();">&#9729; Back</font></span></div>
+         <div class="col-md-12" style=""><font style="font-size:32px;"><image src="{!URLFOR($Resource.ShareBot,'resources/shareCareIcon.png')}" width="50" height="50"/><b>share<font color="white">B</font>ot.</b></font><span style="font-size: 20px;float:right;margin-right: 1%"><font style="color: #eae6ae;" class="likebutton" onclick="backtotabs();">&#9729; Back</font></span></div>
        </div>
        <div class="row " style="background-color:#ebebe0">
         
