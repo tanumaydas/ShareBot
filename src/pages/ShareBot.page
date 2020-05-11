@@ -1,0 +1,557 @@
+<apex:page sidebar="false" showHeader="false" standardStylesheets="false">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<head>
+  <script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/jqueryminjs.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/metadatajs.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/jszip.min.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/bootstrap.js')}"></script>
+  <script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/FileSaverJS.js')}"></script>
+  
+  <link rel="stylesheet" href="{!URLFOR($Resource.ShareBot,'css/BootstrapCss.css')}"/>
+  <link rel="stylesheet" href="{!URLFOR($Resource.ShareBot,'css/sbot.css')}"/>
+  <style>
+   
+   .acordholder::-webkit-scrollbar-track
+    {
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+        background-color: #F5F5F5;
+    }
+    
+    .acordholder::-webkit-scrollbar
+    {
+        width: 10px;
+        background-color: #F5F5F5;
+    }
+    
+    .acordholder::-webkit-scrollbar-thumb
+    {
+        background-color: #c7b97e;
+        border: 2px solid #7f878b52;
+    }
+    .blinking{
+    animation:blinkingText 1.2s infinite;
+     }
+@keyframes blinkingText{
+    0%{     color: #000;    }
+    49%{    color: #000; }
+    60%{    color: blue; }
+    99%{    color: blue; }
+    100%{   color: #000;    }
+}
+
+.footer {
+  position: relative;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: red;
+  color: white;
+  text-align: center;
+}
+
+  </style>
+</head>
+  <body>  
+  <div class=".mx-auto px-2">
+       <div class="row pagebg">
+         <div class="col-md-12" style=""><font style="font-size:32px;"><image src="{!URLFOR($Resource.ShareBot,'resources/shareCareIcon.png')}" width="50" height="50"/><b>share<font color="white">B</font>ot.</b></font><span style="font-size: 20px;float:right;margin-right:2%"><font style="color: #eae6ae;" class="likebutton" onclick="backtotabs();">&#9729; Back</font></span></div>
+       </div>
+       <div class="row " style="background-color:#ebebe0">
+        
+                 <div class="col-md-3 acordholder" style="overflow-wrap: break-word;background-color: #f7c32f; z-index:100;min-height: 90vh;max-height: 90vh;overflow-y: auto;" >
+                     <div>
+                     <span><input type="text" id="objSerchinput" onkeyup="searchObj()" placeholder="Search.." autocomplete="off" style="margin: 2%;" class="form-control"/></span>
+                          <ul id="objlist" style="list-style:none"/>
+                     </div> 
+                 </div>
+                 <div class="col-md-9 ">
+                            <div>
+                                  <p style="display:inline;font-size:228%">Sharing Rules</p>
+                                  <p style="display:inline;margin-left: 57%;" class="settingsTab"><span onclick="opensettings();" style="margin-left: 8%;"><image src="{!URLFOR($Resource.ShareBot,'resources/GearPNG.png')}" width="25" height="25" />&nbsp;&nbsp;<b>Preferences</b></span><br/><br/>
+                                  <span style="inline-flex">
+                                    <button class="btn btn btn-success btn-sm" style="margin-left: 81%;" onClick='dwnldZip();'> Download Zip </button>
+                                    <button class="btn btn btn-success btn-sm"  onClick='deployZip();'>Deploy</button>
+                                  </span></p>
+                                  <p >Existing Rules for <span class="objname"/></p>
+                                  
+                                  
+                                  <u><font style="color: palevioletred;"><b>Criteria Based Rules</b></font></u>
+                                  <table class="criteriarules table">
+                                      <thead>
+                                          <tr>
+                                            
+                                            <th>API Name</th>
+                                            <th>Access Level</th>
+                                            <th>Shared To</th>
+                                            <th>Shared To Name</th>
+                                            <th>Criterias</th>
+                                            <th>Criteria Logic</th>
+                                            <th></th>
+                                            
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                      </tbody>
+                                  </table>
+                                  <u><font style="color: palevioletred;"><b>Owner Based Rules</b></font></u>
+                                  <table class="ownerrules table">
+                                       <thead>
+                                          <tr>
+                                            
+                                            <th>API Name</th>
+                                            <th>Access Level</th>
+                                            <th>Shared From</th>
+                                            <th>Shared From Name</th>
+                                            <th>Shared To</th>
+                                            <th>Shared To Name</th>
+                                            <th></th>
+                                            
+                                          </tr>
+                                      </thead>
+                                      <tbody>
+                                      </tbody>
+                                  </table>
+                                  <table class="territoryrules table">
+                                  </table>
+                                  <button class="btn btn-primary" disabled="true" id="addnew" onclick="resetall();"> Add New Rule</button><!--data-toggle="modal" data-target="#myModal"-->
+                            </div>
+                            <div>
+                            <h2>XML View</h2>
+                            <p>Changes will reflect here</p>
+                            <div class="XMLPane">
+                            </div>
+                            </div>
+                 </div>
+       </div>
+      
+  </div>
+  <!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">New Sharing Rule</h4>
+      </div>
+      <div class="modal-body">
+        <p class="sc1">
+           <input type="radio" name="ruletype" value="sharingCriteriaRules" checked="checked" onclick="renderrule.call(this);" id="CRRadio"> Based on criteria</input>&nbsp;&nbsp;&nbsp;&nbsp;
+           <input type="radio" name="ruletype" value="sharingOwnerRules" onclick="renderrule.call(this);" id="OBRadio"> Based on record owner</input>
+        </p>    
+        <p class="sc1">
+           <table style="width: 100%;">
+           <tr>
+           <td>
+               
+               <b>Label</b><br/>
+               <input type="text" id="ruleLabel" placeholder="Input Name" class="clearthis" onblur="populateApi.call(this)"/><br/>
+               
+               <b>Name</b><br/>
+               <input type="text" id="ruleName" placeholder="Input Unique API Name" class="clearthis"/><br/>
+               
+           </td>
+           <td>
+               <b>Access Level</b><br/>
+               <select class="" id="acclevel" name="AccessLevel" value="">
+                  <option value="Read">Read Only</option>
+                  <option value="Edit"> Read / Write </option>
+               </select><br/>   
+               <b>Description</b><br/>
+               <textarea name="message" id="ruledesc" rows="2" cols="30" class="clearthis"></textarea>
+           </td>
+           </tr>
+           </table>
+        </p>
+        <p class="criteriaBased sc1">
+           <b>Criterias</b><br/>
+           <ol class="criteriaBased sc1">
+           <li class='cri_item'>
+           <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
+           <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
+            <select class="objField_oprator clearthis" value=""/>
+           <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/>
+           Clone <input type="checkbox" class="cloneThis" name="clone" id="c1"/>
+           <br/><br/>
+           </li><li class='cri_item'>
+           <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
+           <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
+            <select class="objField_oprator clearthis" value=""/>
+           <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
+           Clone <input type="checkbox" class="cloneThis" name="clone" id="c2"/>
+           <br/><br/>
+           </li><li class='cri_item'>
+           <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
+           <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
+            <select class="objField_oprator clearthis" value=""/>
+           <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
+           Clone <input type="checkbox" class="cloneThis" name="clone" id="c3"/>
+           <br/><br/>
+           </li><li class='cri_item'>
+           <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
+           <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
+            <select class="objField_oprator clearthis" value=""/>
+           <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
+           Clone <input type="checkbox" class="cloneThis" name="clone" id="c4"/>
+           <br/><br/>
+           </li><li class='cri_item'>
+           <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
+           <select class="objField" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
+            <select class="objField_oprator clearthis" value=""/>
+           <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
+           Clone <input type="checkbox" class="cloneThis" name="clone" id="c5"/>
+           <br/><br/>
+           </li><li class='cri_item'>
+           <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
+           <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
+            <select class="objField_oprator clearthis" value=""/>
+           <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
+           Clone <input type="checkbox" class="cloneThis" name="clone" id="c6"/>
+           <br/><br/>
+           </li>
+           </ol>
+           <span class='likebutton criteriaBased sc1' onclick="addfieldrow_new();"><b><font color="green" size="6">&nbsp;&nbsp;+&nbsp;&nbsp;</font></b></span><br/><br/>
+           
+           <b id="flogic" class="criteriaBased sc1" >Filter Logic</b><br/>
+           <input type="text" id="CriteriaFiletrLogic" placeholder="Specify filter logic if applies" class="clearthis criteriaBased sc1"/> <br/>
+        
+        </p>
+        <p class="ownerBased sc1" style="display:none;">
+           <b>Records to be shared</b><br/>
+           <select class="tobesharedType" id="shareFromType">
+              <option value="group">Public Group</option>
+              <option value="role"> Roles </option>
+              <option value="rolesubordinate"> Roles and subordinates </option>
+           </select>&nbsp;&nbsp;   
+           <input type="text" class="objField6 clearthis" placeholder="Name" id="SFName"/>
+           <input type="checkbox" id="sharefromClone" class="cloneThis_share clearthis"/> Clone
+        </p>   
+        <p class="sc1">
+           <b>Share With</b><br/>
+           <select id="shareWithType">
+              <option value="group">Public Group</option>
+              <option value="role"> Roles </option>
+              <option value="rolesubordinate"> Roles and subordinates </option>
+           </select>&nbsp;&nbsp;   
+           <input type="text" id="SWName" placeholder="Name" class="clearthis"/>   
+           <input type="checkbox" id="sharewithClone" class="cloneThis_share clearthis"/> Clone
+        </p>  
+        <p class="sc1 acconly" style="display:none;">
+           <b class="sc1">Level of access</b><br/>
+           <table class="acconly">
+           <tr>
+           <td>
+           Default Account, Contract and Asset Access &nbsp;&nbsp;
+           </td>
+           <td>
+           <select id="acclevelaccess">
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/> 
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Opportunity Access &nbsp;&nbsp;</td>
+           <td>
+           <select id="opplevelaccess">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp;  <br/>
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Case Access &nbsp;&nbsp;</td> 
+           <td>
+           <select id="caselevelaccess">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/></td> 
+            
+           </tr> 
+           </table>
+        </p>
+        <hr class="sc1"/> 
+        
+        <span class="clickli sc1" id="addMultiple" onclick="change2Screen2();"> <u>Add to multiple object >> </u></span><span style="margin-left:10%;color: #29a329;" class="addedNotification sc1"></span><br/><br/>
+        
+        <p class="sc2" style="margin-top:-15%;">
+        <span><input type="text" id="objSerchinput_min" onkeyup="searchObj_mini()" placeholder="Search.." autocomplete="off" style="width:45%;" class="form-control"/></span>
+        <ul class="sc2detail sc2"/>
+        </p>
+        <span class="clickli sc2" id="addMultiple" onclick="change2Screen1();"> <u>Done >> </u></span>
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onclick="createRuleXML();">Add</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- Modal End--->
+<!-- Edit Modal Start-->
+<div id="editModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title editmodal-header"></h4>
+      </div>
+      <div class="modal-body">
+      <input type="text" value="" id="ruletype" style="display:none;"/>
+        <p><table style="width: 100%;">
+           <tr>
+           <td>
+               <b>Name</b><br/>
+               <input type="text" id="ruleName_edit" placeholder="Input Unique API Name" disabled="disabled"/><br/>
+               <b>Label</b><br/>
+               <input type="text" id="ruleLabel_edit" placeholder="Input Name"/>
+           </td>
+           <td>
+               <b>Access Level</b><br/>
+               <select class="" id="acclevel_edit" name="AccessLevel_edit" value="">
+                  <option value="Read">Read Only</option>
+                  <option value="Edit"> Read / Write </option>
+               </select><br/>   
+               <b>Description</b><br/>
+               <textarea name="message" id="ruledesc_edit" rows="2" cols="30"></textarea>
+           </td>
+           </tr>
+           </table>
+        </p>
+        <p class="criteriaEditpane">
+        <b>Criterias</b><br/>
+           <span class="editFieldrows"/>
+           <span class='likebutton' onclick="addfieldrow();"><b><font color="green" size="6">&nbsp;&nbsp;+&nbsp;&nbsp;</font></b></span><br/>
+           <br/><b>Filter Logic</b><br/>
+           <input type="text" id="CriteriaFiletrLogic_edit" placeholder="Specify filter logic if applies"/> <br/>
+        </p>
+        <p class="shareFromEditpane">
+           <b>Share From</b><br/>
+           <select id="shareFromType_edit" disabled="disabled">
+              <option value="group">Public Group</option>
+              <option value="role"> Roles </option>
+              <option value="rolesubordinate"> Roles and subordinates </option>
+           </select>&nbsp;&nbsp;   
+           <input type="text" id="SFName_edit" placeholder="Name" disabled="disabled"/>            
+        </p>
+        <p>
+           <b>Share With</b><br/>
+           <select id="shareWithType_edit" disabled="disabled">
+              <option value="group">Public Group</option>
+              <option value="role"> Roles </option>
+              <option value="rolesubordinate"> Roles and subordinates </option>
+           </select>&nbsp;&nbsp;   
+           <input type="text" id="SWName_edit" placeholder="Name" disabled="disabled"/>
+        </p> 
+        <p class="acconly_edit" style="display:none;">
+           <b>Level of access</b><br/>
+           <table class="acconly_edit">
+           <tr>
+           <td>
+           Default Account, Contract and Asset Access &nbsp;&nbsp;
+           </td>
+           <td>
+           <select id="acclevelaccess_edit">
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/> 
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Opportunity Access &nbsp;&nbsp;</td>
+           <td>
+           <select id="opplevelaccess_edit">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp;  <br/>
+           </td> 
+           </tr>
+           <tr>
+           <td>
+           Case Access &nbsp;&nbsp;</td> 
+           <td>
+           <select id="caselevelaccess_edit">
+              <option value="None">Private</option>
+              <option value="Read">Read Only</option>
+              <option value="Edit"> Read / Write </option>
+           </select>&nbsp;&nbsp; <br/></td> 
+            
+           </tr> 
+           </table>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onclick="saveEdited();">Save</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- Edit Modal End -->
+<!-- deployment Modal Start-->
+<div id="deploymentModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title deploymentmodal-header"></h4>
+      </div>
+      <div class="modal-body">
+         <center><span id="deploymentstat" style="font-weight:bold;"/></center>
+         <span> <ul id="deploymentprob"/> </span>
+         <center><img class="loaderimg" src="data:image/gif;base64,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"/></center>
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-default deployclose" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- deployment Modal End -->
+<!-- pre loader Modal Start-->
+<div id="preLoaderModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+         <div class="load">
+          <div class="gear one">
+            <svg id="blue" viewbox="0 0 100 100" fill="#94DDFF">
+              <path d="M97.6,55.7V44.3l-13.6-2.9c-0.8-3.3-2.1-6.4-3.9-9.3l7.6-11.7l-8-8L67.9,20c-2.9-1.7-6-3.1-9.3-3.9L55.7,2.4H44.3l-2.9,13.6      c-3.3,0.8-6.4,2.1-9.3,3.9l-11.7-7.6l-8,8L20,32.1c-1.7,2.9-3.1,6-3.9,9.3L2.4,44.3v11.4l13.6,2.9c0.8,3.3,2.1,6.4,3.9,9.3      l-7.6,11.7l8,8L32.1,80c2.9,1.7,6,3.1,9.3,3.9l2.9,13.6h11.4l2.9-13.6c3.3-0.8,6.4-2.1,9.3-3.9l11.7,7.6l8-8L80,67.9      c1.7-2.9,3.1-6,3.9-9.3L97.6,55.7z M50,65.6c-8.7,0-15.6-7-15.6-15.6s7-15.6,15.6-15.6s15.6,7,15.6,15.6S58.7,65.6,50,65.6z"></path>
+            </svg>
+          </div>
+          <div class="gear two">
+            <svg id="pink" viewbox="0 0 100 100" fill="#FB8BB9">
+              <path d="M97.6,55.7V44.3l-13.6-2.9c-0.8-3.3-2.1-6.4-3.9-9.3l7.6-11.7l-8-8L67.9,20c-2.9-1.7-6-3.1-9.3-3.9L55.7,2.4H44.3l-2.9,13.6      c-3.3,0.8-6.4,2.1-9.3,3.9l-11.7-7.6l-8,8L20,32.1c-1.7,2.9-3.1,6-3.9,9.3L2.4,44.3v11.4l13.6,2.9c0.8,3.3,2.1,6.4,3.9,9.3      l-7.6,11.7l8,8L32.1,80c2.9,1.7,6,3.1,9.3,3.9l2.9,13.6h11.4l2.9-13.6c3.3-0.8,6.4-2.1,9.3-3.9l11.7,7.6l8-8L80,67.9      c1.7-2.9,3.1-6,3.9-9.3L97.6,55.7z M50,65.6c-8.7,0-15.6-7-15.6-15.6s7-15.6,15.6-15.6s15.6,7,15.6,15.6S58.7,65.6,50,65.6z"></path>
+            </svg>
+          </div>
+          <div class="gear three">
+            <svg id="yellow" viewbox="0 0 100 100" fill="#FFCD5C">
+              <path d="M97.6,55.7V44.3l-13.6-2.9c-0.8-3.3-2.1-6.4-3.9-9.3l7.6-11.7l-8-8L67.9,20c-2.9-1.7-6-3.1-9.3-3.9L55.7,2.4H44.3l-2.9,13.6      c-3.3,0.8-6.4,2.1-9.3,3.9l-11.7-7.6l-8,8L20,32.1c-1.7,2.9-3.1,6-3.9,9.3L2.4,44.3v11.4l13.6,2.9c0.8,3.3,2.1,6.4,3.9,9.3      l-7.6,11.7l8,8L32.1,80c2.9,1.7,6,3.1,9.3,3.9l2.9,13.6h11.4l2.9-13.6c3.3-0.8,6.4-2.1,9.3-3.9l11.7,7.6l8-8L80,67.9      c1.7-2.9,3.1-6,3.9-9.3L97.6,55.7z M50,65.6c-8.7,0-15.6-7-15.6-15.6s7-15.6,15.6-15.6s15.6,7,15.6,15.6S58.7,65.6,50,65.6z"></path>
+            </svg>
+          </div>
+          <div class="lil-circle"></div>
+          <svg class="blur-circle">
+            <filter id="blur">
+              <fegaussianblur in="SourceGraphic" stddeviation="13"></fegaussianblur>
+            </filter>
+            <circle cx="70" cy="70" r="66" fill="transparent" stroke="white" stroke-width="40" filter="url(#blur)"></circle>
+          </svg>
+        </div>
+        <div class="text">Fetching Metadata....</div>
+      </div>
+      <!--<div class="modal-footer">
+      <button type="button" class="btn btn-default deployclose" data-dismiss="modal">Close</button>
+      </div>-->
+    </div>
+
+  </div>
+</div>
+<!-- pre loader Modal End -->
+<!-- Settings Modal Start-->
+<div id="settingsModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"> Settings </h4>
+      </div>
+      <div class="modal-body" style="display:grid;">
+       <p>
+       <table>
+       <tr>
+               <td>
+                     <u><b>NameSpace Prefix</b></u><br/>
+                     <input type="text" class="nameSpacePrefix" placeholder="No Value Specified" /><br/><br/>
+                   
+                     <u><b>NameSpace Sufix</b></u><br/>
+                     <input type="text" class="nameSpacesufix" placeholder="No Value Specified" /><br/><br/>
+                     
+                     <u><b>Sample Format</b></u><br/>
+                     <span><b class="namespaceoutput"></b></span><br/><br/>
+               </td>
+               <td>
+                     <u><b>Deployment Settings</b></u><br/>
+                         <span>
+                            
+                            <input type="radio" id="deploy" name="deploy_settings" value="deploy" class="dset"/>&nbsp;&nbsp;<b>Deploy </b><br/>
+                            <input type="radio" id="validate" name="deploy_settings" value="validate" class="dset"/>&nbsp;&nbsp;<b>Validate Only</b>
+                            
+                            
+                         </span>
+                     
+               </td>
+       </tr>
+       <tr>
+               <td colspan="2">
+                     <u><b>Preferred Object List (Comma ',' separated list of API names)</b></u><br/>
+                     <span>
+                       <textarea class="form-control presetObjList" rows="3" style="max-width:100%"/>
+                       <font style="color:red;">*</font><font>Requires page reload to reflect changes</font>
+                     </span><br/><br/>
+               </td>
+       </tr>
+       <tr>    
+               <td colspan="2">
+                       <u><b>Include these missing Standerd Objects (Comma ',' separated list of API names)</b></u><br/>
+                     <span>
+                       <textarea class="form-control presetStanderdObjList" rows="3" style="max-width:100%"/>
+                       <font style="color:red;">*</font><font>Requires page reload to reflect changes</font><br/>
+                       <font style="color:red;">*</font><font>Please make sure your Org Supports Sharing Rule for the items</font>
+                     </span><br/><br/>  
+               </td>
+        </tr> 
+         </table>
+       </p>  
+      </div>
+      <div class="modal-footer">
+      <button type="button" class="btn btn-default" onclick="saveSettings();">Save</button>
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- Settings Modal End -->
+
+  </body>
+  <script>
+  var conn = new jsforce.Connection({accessToken: '{!$API.Session_Id}'});
+    var zip = new JSZip();
+    var deployzip = new JSZip();
+        deployzip.folder('root');
+        deployzip.folder('root/sharingRules');
+    console.log(deployzip);
+    var types = [{type: 'SharingRules'}];//SharingRules
+    var Components = [];
+    var allObjs = [];
+    var selected_multiobject = [];
+    var GlobalLoadedXML;
+    var deployComponent = '';
+    var deploycomponent_type = [];
+    var currentObjDescribe ;
+    var currentObjFieldTypeMap = [];
+    var case_level='';
+    var opp_level='';
+    var contact_level='';
+  </script>
+<script type="text/javascript" src="{!URLFOR($Resource.ShareBot,'js/shareChareJS.js')}"></script>
+<script>
+ 
+</script>
+</apex:page>
