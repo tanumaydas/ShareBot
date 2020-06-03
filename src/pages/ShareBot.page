@@ -10,45 +10,7 @@
   <link rel="stylesheet" href="{!URLFOR($Resource.ShareBot,'css/BootstrapCss.css')}"/>
   <link rel="stylesheet" href="{!URLFOR($Resource.ShareBot,'css/sbot.css')}"/>
   <style>
-   
-   .acordholder::-webkit-scrollbar-track
-    {
-        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-        background-color: #F5F5F5;
-    }
-    
-    .acordholder::-webkit-scrollbar
-    {
-        width: 10px;
-        background-color: #F5F5F5;
-    }
-    
-    .acordholder::-webkit-scrollbar-thumb
-    {
-        background-color: #c7b97e;
-        border: 2px solid #7f878b52;
-    }
-    .blinking{
-    animation:blinkingText 1.2s infinite;
-     }
-@keyframes blinkingText{
-    0%{     color: #000;    }
-    49%{    color: #000; }
-    60%{    color: blue; }
-    99%{    color: blue; }
-    100%{   color: #000;    }
-}
-
-.footer {
-  position: relative;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background-color: red;
-  color: white;
-  text-align: center;
-}
-
+ 
   </style>
 </head>
   <body>  
@@ -172,42 +134,42 @@
            <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
             <select class="objField_oprator clearthis" value=""/>
            <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/>
-           Clone <input type="checkbox" class="cloneThis" name="clone" id="c1"/>
+           Clone <input type="checkbox" class="cloneThis clearthis" name="clone" id="c1"/>
            <br/><br/>
            </li><li class='cri_item'>
            <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
            <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
             <select class="objField_oprator clearthis" value=""/>
            <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
-           Clone <input type="checkbox" class="cloneThis" name="clone" id="c2"/>
+           Clone <input type="checkbox" class="cloneThis clearthis" name="clone" id="c2"/>
            <br/><br/>
            </li><li class='cri_item'>
            <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
            <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
             <select class="objField_oprator clearthis" value=""/>
            <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
-           Clone <input type="checkbox" class="cloneThis" name="clone" id="c3"/>
+           Clone <input type="checkbox" class="cloneThis clearthis" name="clone" id="c3"/>
            <br/><br/>
            </li><li class='cri_item'>
            <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
            <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
             <select class="objField_oprator clearthis" value=""/>
            <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
-           Clone <input type="checkbox" class="cloneThis" name="clone" id="c4"/>
+           Clone <input type="checkbox" class="cloneThis clearthis" name="clone" id="c4"/>
            <br/><br/>
            </li><li class='cri_item'>
            <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
            <select class="objField" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
             <select class="objField_oprator clearthis" value=""/>
            <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
-           Clone <input type="checkbox" class="cloneThis" name="clone" id="c5"/>
+           Clone <input type="checkbox" class="cloneThis clearthis" name="clone" id="c5"/>
            <br/><br/>
            </li><li class='cri_item'>
            <image onclick='zapValues.call(this)' src="{!URLFOR($Resource.ShareBot,'resources/copyzap.webp')}" width="25" height="20" class="copyzap likebutton"/>
            <select class="objField clearthis" placeholder="Field Name" value="" onchange="populateOperators.call(this)"/>
             <select class="objField_oprator clearthis" value=""/>
            <input type="text" class="objField_value clearthis" placeholder="" data-toggle="tooltip" title=""/> 
-           Clone <input type="checkbox" class="cloneThis" name="clone" id="c6"/>
+           Clone <input type="checkbox" class="cloneThis clearthis" name="clone" id="c6"/>
            <br/><br/>
            </li>
            </ol>
@@ -223,6 +185,8 @@
               <option value="group">Public Group</option>
               <option value="role"> Roles </option>
               <option value="rolesubordinate"> Roles and subordinates </option>
+              <option value="territory"> Territory </option>
+              <option value="territoryAndSubordinates"> Territory and Subordinates </option>
            </select>&nbsp;&nbsp;   
            <input type="text" class="objField6 clearthis" placeholder="Name" id="SFName"/>
            <input type="checkbox" id="sharefromClone" class="cloneThis_share clearthis"/> Clone
@@ -233,6 +197,8 @@
               <option value="group">Public Group</option>
               <option value="role"> Roles </option>
               <option value="rolesubordinate"> Roles and subordinates </option>
+              <option value="territory"> Territory </option>
+              <option value="territoryAndSubordinates"> Territory and Subordinates </option>
            </select>&nbsp;&nbsp;   
            <input type="text" id="SWName" placeholder="Name" class="clearthis"/>   
            <input type="checkbox" id="sharewithClone" class="cloneThis_share clearthis"/> Clone
@@ -337,8 +303,10 @@
            <b>Share From</b><br/>
            <select id="shareFromType_edit" disabled="disabled">
               <option value="group">Public Group</option>
-              <option value="role"> Roles </option>
-              <option value="rolesubordinate"> Roles and subordinates </option>
+              <option value="role">Roles</option>
+              <option value="rolesubordinate">Roles and subordinates</option>
+              <option value="territory">Territory</option>
+              <option value="territoryAndSubordinates">Territory and Subordinates</option>
            </select>&nbsp;&nbsp;   
            <input type="text" id="SFName_edit" placeholder="Name" disabled="disabled"/>            
         </p>
@@ -348,6 +316,8 @@
               <option value="group">Public Group</option>
               <option value="role"> Roles </option>
               <option value="rolesubordinate"> Roles and subordinates </option>
+              <option value="territory"> Territory </option>
+              <option value="territoryAndSubordinates"> Territory and Subordinates </option>
            </select>&nbsp;&nbsp;   
            <input type="text" id="SWName_edit" placeholder="Name" disabled="disabled"/>
         </p> 
