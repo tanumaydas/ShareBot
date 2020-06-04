@@ -4,3 +4,4 @@ This is a First of a kind tool that automates bulk Sharing Rule Creation in sale
   <img alt="Deploy to Salesforce"
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
 </a>
+<h4>After Installation please enable the ShareBot Tab for the Admin Profiles / Users </h4
